@@ -27,10 +27,12 @@ export default function Home() {
       }
       const data = await res.text();
       setResponse(data);
-    } catch (err: any) {
-      setResponse(
-        `エラーが発生しました: ${err.message}\n詳細: ${err.toString()}`
-      );
+    } catch (err: unknown) {
+      let message = "不明なエラー";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setResponse(`エラーが発生しました: ${message}`);
     }
   };
 
