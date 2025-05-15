@@ -20,8 +20,12 @@ export default function Home() {
       } else {
         setResponse(data.result);
       }
-    } catch (err: any) {
-      setResponse(`エラーが発生しました: ${err.message}`);
+    } catch (err: unknown) {
+      let message = "不明なエラー";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setResponse(`エラーが発生しました: ${message}`);
     }
   };
 
@@ -34,7 +38,7 @@ export default function Home() {
           <input
             type="text"
             value={userId}
-            onChange={(e) => setUserId(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserId(e.target.value)}
             style={{ marginLeft: "8px" }}
             required
           />

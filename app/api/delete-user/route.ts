@@ -37,7 +37,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ result: "削除＆LINE通知完了" });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    let message = "不明なエラー";
+    if (err instanceof Error) {
+      message = err.message;
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
