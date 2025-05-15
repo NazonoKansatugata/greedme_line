@@ -20,8 +20,12 @@ export default function Home() {
       } else {
         setResponse(data.result);
       }
-    } catch (err: any) {
-      setResponse(`エラーが発生しました: ${err.message}`);
+    } catch (err: unknown) {
+      let message = "不明なエラー";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setResponse(`エラーが発生しました: ${message}`);
     }
   };
 
