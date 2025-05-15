@@ -38,7 +38,7 @@ export default function Home() {
           <input
             type="text"
             value={userId}
-            onChange={(e) => setUserId(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserId(e.target.value)}
             style={{ marginLeft: "8px" }}
             required
           />
