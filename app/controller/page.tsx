@@ -39,30 +39,32 @@ export default function ControllerPage() {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginRight: 60 }}>
         <button
           style={{
-            width: 60,
-            height: 60,
-            marginBottom: 8,
-            fontSize: 28,
-            borderRadius: 12,
+            width: 90,
+            height: 90,
+            marginBottom: 16,
+            fontSize: 40,
+            borderRadius: 18,
             background: "#444",
             color: "#fff",
             border: "none",
+            touchAction: "manipulation",
           }}
           onClick={() => sendInput("up")}
         >
           ↑
         </button>
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
           <button
             style={{
-              width: 60,
-              height: 60,
-              marginRight: 8,
-              fontSize: 28,
-              borderRadius: 12,
+              width: 90,
+              height: 90,
+              marginRight: 40, // ここを広げる
+              fontSize: 40,
+              borderRadius: 18,
               background: "#444",
               color: "#fff",
               border: "none",
+              touchAction: "manipulation",
             }}
             onClick={() => sendInput("left")}
           >
@@ -70,14 +72,15 @@ export default function ControllerPage() {
           </button>
           <button
             style={{
-              width: 60,
-              height: 60,
-              marginLeft: 8,
-              fontSize: 28,
-              borderRadius: 12,
+              width: 90,
+              height: 90,
+              marginLeft: 40, // ここを広げる
+              fontSize: 40,
+              borderRadius: 18,
               background: "#444",
               color: "#fff",
               border: "none",
+              touchAction: "manipulation",
             }}
             onClick={() => sendInput("right")}
           >
@@ -86,14 +89,15 @@ export default function ControllerPage() {
         </div>
         <button
           style={{
-            width: 60,
-            height: 60,
-            marginTop: 8,
-            fontSize: 28,
-            borderRadius: 12,
+            width: 90,
+            height: 90,
+            marginTop: 16,
+            fontSize: 40,
+            borderRadius: 18,
             background: "#444",
             color: "#fff",
             border: "none",
+            touchAction: "manipulation",
           }}
           onClick={() => sendInput("down")}
         >
@@ -104,15 +108,16 @@ export default function ControllerPage() {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: 60 }}>
         <button
           style={{
-            width: 80,
-            height: 80,
-            marginBottom: 24,
-            fontSize: 32,
+            width: 110,
+            height: 110,
+            marginBottom: 36,
+            fontSize: 44,
             borderRadius: "50%",
             background: "#e74c3c",
             color: "#fff",
             border: "none",
             boxShadow: "0 2px 8px #0006",
+            touchAction: "manipulation",
           }}
           onClick={() => sendInput("A")}
         >
@@ -120,14 +125,15 @@ export default function ControllerPage() {
         </button>
         <button
           style={{
-            width: 80,
-            height: 80,
-            fontSize: 32,
+            width: 110,
+            height: 110,
+            fontSize: 44,
             borderRadius: "50%",
             background: "#3498db",
             color: "#fff",
             border: "none",
             boxShadow: "0 2px 8px #0006",
+            touchAction: "manipulation",
           }}
           onClick={() => sendInput("B")}
         >
