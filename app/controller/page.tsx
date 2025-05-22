@@ -14,7 +14,7 @@ export default function ControllerPage() {
       console.log("受信:", event.data);
     };
     return () => {
-      ws.current && ws.current.close();
+      if (ws.current) ws.current.close();
     };
   }, []);
 
