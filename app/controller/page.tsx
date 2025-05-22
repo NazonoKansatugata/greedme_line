@@ -5,7 +5,7 @@ export default function ControllerPage() {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8080");
+    ws.current = new WebSocket("wss://greendme-websocket.onrender.com");
     ws.current.onopen = () => {
       ws.current?.send(JSON.stringify({ type: "register", role: "controller" }));
     };
@@ -26,10 +26,26 @@ export default function ControllerPage() {
 
   return (
     <div style={{ textAlign: "center", marginTop: 40 }}>
-      <h1>コントローラー</h1>
-      <button onClick={() => sendInput("left")}>左</button>
-      <button onClick={() => sendInput("right")}>右</button>
-      <button onClick={() => sendInput("jump")}>ジャンプ</button>
+      <h1>テトリス コントローラー</h1>
+      <div style={{ margin: "24px 0" }}>
+        <button style={{ fontSize: 24, margin: 8 }} onClick={() => sendInput("left")}>
+          ← 左
+        </button>
+        <button style={{ fontSize: 24, margin: 8 }} onClick={() => sendInput("right")}>
+          右 →
+        </button>
+        <button style={{ fontSize: 24, margin: 8 }} onClick={() => sendInput("rotate")}>
+          ⟳ 回転
+        </button>
+      </div>
+      <div style={{ margin: "24px 0" }}>
+        <button style={{ fontSize: 24, margin: 8 }} onClick={() => sendInput("soft_drop")}>
+          ↓ ソフトドロップ
+        </button>
+        <button style={{ fontSize: 24, margin: 8 }} onClick={() => sendInput("hard_drop")}>
+          ⏬ ハードドロップ
+        </button>
+      </div>
     </div>
   );
 }
