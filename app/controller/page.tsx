@@ -1,13 +1,44 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ControllerPage() {
   const ws = useRef<WebSocket | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [users, setUsers] = useState<{ id: string; name: string; password: string }[]>([]);
+  const [selecting, setSelecting] = useState(true);
+  const [inputPassword, setInputPassword] = useState("");
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; password: string } | null>(null);
+  const [error, setError] = useState("");
 
+  // Firestore初期化
   useEffect(() => {
+    let ignore = false;
+    async function fetchUsers() {
+      // 動的importでfirebase関連を読み込む
+      const { initializeApp } = await import("firebase/app");
+      const { getFirestore, collection, getDocs } = await import("firebase/firestore");
+      // firebaseConfigも動的import
+      const { firebaseConfig } = await import("../firebaseConfig");
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const snapshot = await getDocs(collection(db, "users"));
+      const userList: { id: string; name: string; password: string }[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        userList.push({ id: doc.id, name: data.name || doc.id, password: data.password || "" });
+      });
+      if (!ignore) setUsers(userList);
+    }
+    fetchUsers();
+    return () => { ignore = true; };
+  }, []);
+
+  // WebSocket接続
+  useEffect(() => {
+    if (!userId) return;
     ws.current = new WebSocket("wss://greendme-websocket.onrender.com");
     ws.current.onopen = () => {
-      ws.current?.send(JSON.stringify({ type: "register", role: "controller" }));
+      ws.current?.send(JSON.stringify({ type: "register", role: "controller", userId }));
     };
     ws.current.onmessage = (event) => {
       // サーバーやゲーム画面からの応答を受信
@@ -16,13 +47,57 @@ export default function ControllerPage() {
     return () => {
       if (ws.current) ws.current.close();
     };
-  }, []);
+  }, [userId]);
 
   const sendInput = (input: string) => {
-    if (ws.current && ws.current.readyState === 1) {
-      ws.current.send(JSON.stringify({ type: "input", data: input }));
+    if (ws.current && ws.current.readyState === 1 && userId) {
+      ws.current.send(JSON.stringify({ type: "input", data: input, userId }));
     }
   };
+
+  // ユーザー選択・認証UI
+  if (selecting) {
+    return (
+      <div style={{ padding: 32, background: "#222", minHeight: "100vh", color: "#fff" }}>
+        <h2>ユーザーを選択してください</h2>
+        {users.map((u) => (
+          <div key={u.id} style={{ margin: "12px 0" }}>
+            <button
+              style={{ fontSize: 20, padding: "8px 24px", borderRadius: 8, marginRight: 16 }}
+              onClick={() => { setSelectedUser(u); setError(""); }}
+            >
+              {u.name} (ID: {u.id})
+            </button>
+          </div>
+        ))}
+        {selectedUser && (
+          <div style={{ marginTop: 24 }}>
+            <div>合言葉を入力してください（{selectedUser.name}）</div>
+            <input
+              type="text"
+              value={inputPassword}
+              onChange={(e) => setInputPassword(e.target.value)}
+              style={{ fontSize: 18, marginRight: 12, padding: 4, borderRadius: 6 }}
+            />
+            <button
+              style={{ fontSize: 18, padding: "4px 18px", borderRadius: 8 }}
+              onClick={() => {
+                if (inputPassword === selectedUser.password) {
+                  setUserId(selectedUser.id);
+                  setSelecting(false);
+                } else {
+                  setError("合言葉が一致しません");
+                }
+              }}
+            >
+              OK
+            </button>
+            {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
