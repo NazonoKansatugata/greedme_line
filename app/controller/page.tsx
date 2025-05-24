@@ -236,16 +236,16 @@ export default function ControllerPage() {
             // iOS 13+ の場合
             if (
               typeof DeviceMotionEvent !== "undefined" &&
-              typeof (DeviceMotionEvent as any).requestPermission === "function"
+              typeof (DeviceMotionEvent as { requestPermission?: () => Promise<PermissionState> }).requestPermission === "function"
             ) {
               try {
-                const res = await (DeviceMotionEvent as any).requestPermission();
+                const res = await (DeviceMotionEvent as unknown as { requestPermission: () => Promise<PermissionState> }).requestPermission();
                 if (res === "granted") {
                   setSensorEnabled(true);
                 } else {
                   alert("センサー利用が許可されませんでした");
                 }
-              } catch (e) {
+              } catch {
                 alert("センサー利用の許可リクエストに失敗しました");
               }
             } else {
