@@ -171,6 +171,47 @@ export default function ControllerPage() {
     : 110;
   const dpadGap = isMobile ? 24 : 40;
 
+  // 加速度センサーによる操作 ここから
+  useEffect(() => {
+    if (!userId) return;
+    let lastSent: string | null = null;
+    let lastSentTime = 0;
+    const threshold = 7; // 傾きの感度（調整可）
+    const cooldown = 600; // ms 単位で連続送信防止
+
+    function handleMotion(e: DeviceMotionEvent) {
+      if (!e.accelerationIncludingGravity) return;
+      const { x, y } = e.accelerationIncludingGravity;
+      const now = Date.now();
+
+      // 横持ち前提: x:左右, y:上下
+      if (x !== null && y !== null) {
+        if (x > threshold && (lastSent !== "A" || now - lastSentTime > cooldown)) {
+          sendInput("A");
+          lastSent = "A";
+          lastSentTime = now;
+        } else if (x < -threshold && (lastSent !== "B" || now - lastSentTime > cooldown)) {
+          sendInput("B");
+          lastSent = "B";
+          lastSentTime = now;
+        } else if (y > threshold && (lastSent !== "up" || now - lastSentTime > cooldown)) {
+          sendInput("up");
+          lastSent = "up";
+          lastSentTime = now;
+        } else if (y < -threshold && (lastSent !== "down" || now - lastSentTime > cooldown)) {
+          sendInput("down");
+          lastSent = "down";
+          lastSentTime = now;
+        }
+      }
+    }
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => {
+      window.removeEventListener("devicemotion", handleMotion);
+    };
+  }, [userId]);
+// 加速度センサーによる操作 ここまで
   return (
     <div style={controllerContainerStyle}>
       {/* 十字キー */}
