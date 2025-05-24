@@ -62,7 +62,8 @@ export default function ControllerPage() {
     };
   }, [userId]);
 
-  const sendInput = useCallback((input: string) => {
+  // sendInputをobject対応に
+  const sendInput = useCallback((input: string | { accelY: number }) => {
     if (ws.current && ws.current.readyState === 1 && userId) {
       ws.current.send(JSON.stringify({ type: "input", data: input, userId }));
     }
@@ -71,35 +72,17 @@ export default function ControllerPage() {
   // 加速度センサーによる操作
   useEffect(() => {
     if (!userId || !sensorEnabled) return;
-    let lastSent: string | null = null;
     let lastSentTime = 0;
-    const threshold = 7;
-    const cooldown = 600;
+    const interval = 50; // msごとに送信
 
     function handleMotion(e: DeviceMotionEvent) {
       if (!e.accelerationIncludingGravity) return;
       const { x, y, z } = e.accelerationIncludingGravity;
       setAccel({ x, y, z });
-      console.log("DeviceMotion:", { x, y, z });
       const now = Date.now();
-      if (x !== null && y !== null) {
-        if (x > threshold && (lastSent !== "A" || now - lastSentTime > cooldown)) {
-          sendInput("A");
-          lastSent = "A";
-          lastSentTime = now;
-        } else if (x < -threshold && (lastSent !== "B" || now - lastSentTime > cooldown)) {
-          sendInput("B");
-          lastSent = "B";
-          lastSentTime = now;
-        } else if (y > threshold && (lastSent !== "up" || now - lastSentTime > cooldown)) {
-          sendInput("up");
-          lastSent = "up";
-          lastSentTime = now;
-        } else if (y < -threshold && (lastSent !== "down" || now - lastSentTime > cooldown)) {
-          sendInput("down");
-          lastSent = "down";
-          lastSentTime = now;
-        }
+      if (typeof y === "number" && now - lastSentTime > interval) {
+        sendInput({ accelY: y });
+        lastSentTime = now;
       }
     }
 
