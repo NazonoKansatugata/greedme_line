@@ -9,6 +9,7 @@ export default function ControllerPage() {
   const [inputPassword, setInputPassword] = useState("");
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; password: string } | null>(null);
   const [error, setError] = useState("");
+  const [accel, setAccel] = useState<{ x: number | null, y: number | null, z: number | null }>({ x: null, y: null, z: null });
 
   // Firestore初期化
   useEffect(() => {
@@ -65,7 +66,9 @@ export default function ControllerPage() {
 
     function handleMotion(e: DeviceMotionEvent) {
       if (!e.accelerationIncludingGravity) return;
-      const { x, y } = e.accelerationIncludingGravity;
+      const { x, y, z } = e.accelerationIncludingGravity;
+      setAccel({ x, y, z }); // 画面表示用に保存
+      console.log("DeviceMotion:", { x, y, z });
       const now = Date.now();
 
       if (x !== null && y !== null) {
@@ -339,6 +342,25 @@ export default function ControllerPage() {
         >
           B
         </button>
+      </div>
+      {/* 画面右下に加速度センサーの値を表示 */}
+      <div style={{
+        position: "fixed",
+        right: 12,
+        bottom: 12,
+        background: "#222c",
+        color: "#fff",
+        fontSize: 16,
+        borderRadius: 8,
+        padding: "8px 16px",
+        zIndex: 2000,
+        pointerEvents: "none",
+        minWidth: 120,
+        textAlign: "right"
+      }}>
+        <div>accel.x: {accel.x !== null ? accel.x.toFixed(2) : "--"}</div>
+        <div>accel.y: {accel.y !== null ? accel.y.toFixed(2) : "--"}</div>
+        <div>accel.z: {accel.z !== null ? accel.z.toFixed(2) : "--"}</div>
       </div>
     </div>
   );
