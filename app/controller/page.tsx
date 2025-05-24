@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export default function ControllerPage() {
   const ws = useRef<WebSocket | null>(null);
@@ -49,11 +49,51 @@ export default function ControllerPage() {
     };
   }, [userId]);
 
-  const sendInput = (input: string) => {
+  const sendInput = useCallback((input: string) => {
     if (ws.current && ws.current.readyState === 1 && userId) {
       ws.current.send(JSON.stringify({ type: "input", data: input, userId }));
     }
-  };
+  }, [userId]);
+
+  // 加速度センサーによる操作（トップレベルで呼び出し）
+  useEffect(() => {
+    if (!userId) return;
+    let lastSent: string | null = null;
+    let lastSentTime = 0;
+    const threshold = 7;
+    const cooldown = 600;
+
+    function handleMotion(e: DeviceMotionEvent) {
+      if (!e.accelerationIncludingGravity) return;
+      const { x, y } = e.accelerationIncludingGravity;
+      const now = Date.now();
+
+      if (x !== null && y !== null) {
+        if (x > threshold && (lastSent !== "A" || now - lastSentTime > cooldown)) {
+          sendInput("A");
+          lastSent = "A";
+          lastSentTime = now;
+        } else if (x < -threshold && (lastSent !== "B" || now - lastSentTime > cooldown)) {
+          sendInput("B");
+          lastSent = "B";
+          lastSentTime = now;
+        } else if (y > threshold && (lastSent !== "up" || now - lastSentTime > cooldown)) {
+          sendInput("up");
+          lastSent = "up";
+          lastSentTime = now;
+        } else if (y < -threshold && (lastSent !== "down" || now - lastSentTime > cooldown)) {
+          sendInput("down");
+          lastSent = "down";
+          lastSentTime = now;
+        }
+      }
+    }
+
+    window.addEventListener("devicemotion", handleMotion);
+    return () => {
+      window.removeEventListener("devicemotion", handleMotion);
+    };
+  }, [userId, sendInput]);
 
   // ユーザー選択・認証UI
   if (selecting) {
