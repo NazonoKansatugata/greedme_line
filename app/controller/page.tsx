@@ -10,6 +10,18 @@ export default function ControllerPage() {
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; password: string } | null>(null);
   const [error, setError] = useState("");
   const [accel, setAccel] = useState<{ x: number | null, y: number | null, z: number | null }>({ x: null, y: null, z: null });
+  const [sensorEnabled, setSensorEnabled] = useState(false);
+
+  // iOS判定
+  const isIOS = typeof window !== "undefined" &&
+    /iP(hone|od|ad)/.test(window.navigator.userAgent);
+
+  // iOS: センサー許可ボタン
+  useEffect(() => {
+    if (!isIOS) {
+      setSensorEnabled(true);
+    }
+  }, [isIOS]);
 
   // Firestore初期化
   useEffect(() => {
@@ -56,9 +68,9 @@ export default function ControllerPage() {
     }
   }, [userId]);
 
-  // 加速度センサーによる操作（トップレベルで呼び出し）
+  // 加速度センサーによる操作
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !sensorEnabled) return;
     let lastSent: string | null = null;
     let lastSentTime = 0;
     const threshold = 7;
@@ -67,10 +79,9 @@ export default function ControllerPage() {
     function handleMotion(e: DeviceMotionEvent) {
       if (!e.accelerationIncludingGravity) return;
       const { x, y, z } = e.accelerationIncludingGravity;
-      setAccel({ x, y, z }); // 画面表示用に保存
+      setAccel({ x, y, z });
       console.log("DeviceMotion:", { x, y, z });
       const now = Date.now();
-
       if (x !== null && y !== null) {
         if (x > threshold && (lastSent !== "A" || now - lastSentTime > cooldown)) {
           sendInput("A");
@@ -96,7 +107,7 @@ export default function ControllerPage() {
     return () => {
       window.removeEventListener("devicemotion", handleMotion);
     };
-  }, [userId, sendInput]);
+  }, [userId, sendInput, sensorEnabled]);
 
   // ユーザー選択・認証UI
   if (selecting) {
@@ -213,6 +224,41 @@ export default function ControllerPage() {
     ? Math.max(Math.min(window.innerWidth * 0.22, 110), 70)
     : 110;
   const dpadGap = isMobile ? 24 : 40;
+
+  // iOS用センサー許可ボタン
+  if (!sensorEnabled && isIOS && !selecting) {
+    return (
+      <div style={{ background: "#222", color: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 20, marginBottom: 24 }}>加速度センサーの利用を許可してください</div>
+        <button
+          style={{ fontSize: 22, padding: "12px 32px", borderRadius: 12, background: "#3498db", color: "#fff", border: "none" }}
+          onClick={async () => {
+            // iOS 13+ の場合
+            if (
+              typeof DeviceMotionEvent !== "undefined" &&
+              typeof (DeviceMotionEvent as any).requestPermission === "function"
+            ) {
+              try {
+                const res = await (DeviceMotionEvent as any).requestPermission();
+                if (res === "granted") {
+                  setSensorEnabled(true);
+                } else {
+                  alert("センサー利用が許可されませんでした");
+                }
+              } catch (e) {
+                alert("センサー利用の許可リクエストに失敗しました");
+              }
+            } else {
+              // 古いiOSやその他
+              setSensorEnabled(true);
+            }
+          }}
+        >
+          センサー許可
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={controllerContainerStyle}>
