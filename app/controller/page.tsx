@@ -99,26 +99,50 @@ export default function ControllerPage() {
     );
   }
 
+  // レスポンシブ用のスタイル
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 700;
+  const controllerContainerStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: isMobile ? "column" : "row",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    width: "100vw",
+    background: "#222",
+    boxSizing: "border-box",
+    padding: isMobile ? "16px 0" : 0,
+    gap: isMobile ? 40 : 0,
+  };
+
+  const dpadMargin = isMobile ? 0 : 60;
+  const abMargin = isMobile ? 0 : 60;
+  const buttonSize = isMobile
+    ? Math.max(Math.min(window.innerWidth * 0.18, 90), 60)
+    : 90;
+  const abButtonSize = isMobile
+    ? Math.max(Math.min(window.innerWidth * 0.22, 110), 70)
+    : 110;
+  const dpadGap = isMobile ? 24 : 40;
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        background: "#222",
-      }}
-    >
+    <div style={controllerContainerStyle}>
       {/* 十字キー */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginRight: 60 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginRight: isMobile ? 0 : dpadMargin,
+          marginBottom: isMobile ? 32 : 0,
+        }}
+      >
         <button
           style={{
-            width: 90,
-            height: 90,
-            marginBottom: 16,
-            fontSize: 40,
-            borderRadius: 18,
+            width: buttonSize,
+            height: buttonSize,
+            marginBottom: 12,
+            fontSize: buttonSize * 0.45,
+            borderRadius: buttonSize * 0.2,
             background: "#444",
             color: "#fff",
             border: "none",
@@ -128,14 +152,21 @@ export default function ControllerPage() {
         >
           ↑
         </button>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <button
             style={{
-              width: 90,
-              height: 90,
-              marginRight: 40, // ここを広げる
-              fontSize: 40,
-              borderRadius: 18,
+              width: buttonSize,
+              height: buttonSize,
+              marginRight: dpadGap,
+              fontSize: buttonSize * 0.45,
+              borderRadius: buttonSize * 0.2,
               background: "#444",
               color: "#fff",
               border: "none",
@@ -147,11 +178,11 @@ export default function ControllerPage() {
           </button>
           <button
             style={{
-              width: 90,
-              height: 90,
-              marginLeft: 40, // ここを広げる
-              fontSize: 40,
-              borderRadius: 18,
+              width: buttonSize,
+              height: buttonSize,
+              marginLeft: dpadGap,
+              fontSize: buttonSize * 0.45,
+              borderRadius: buttonSize * 0.2,
               background: "#444",
               color: "#fff",
               border: "none",
@@ -164,11 +195,11 @@ export default function ControllerPage() {
         </div>
         <button
           style={{
-            width: 90,
-            height: 90,
-            marginTop: 16,
-            fontSize: 40,
-            borderRadius: 18,
+            width: buttonSize,
+            height: buttonSize,
+            marginTop: 12,
+            fontSize: buttonSize * 0.45,
+            borderRadius: buttonSize * 0.2,
             background: "#444",
             color: "#fff",
             border: "none",
@@ -180,13 +211,20 @@ export default function ControllerPage() {
         </button>
       </div>
       {/* A/Bボタン */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginLeft: 60 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginLeft: isMobile ? 0 : abMargin,
+        }}
+      >
         <button
           style={{
-            width: 110,
-            height: 110,
-            marginBottom: 36,
-            fontSize: 44,
+            width: abButtonSize,
+            height: abButtonSize,
+            marginBottom: isMobile ? 24 : 36,
+            fontSize: abButtonSize * 0.4,
             borderRadius: "50%",
             background: "#e74c3c",
             color: "#fff",
@@ -200,9 +238,9 @@ export default function ControllerPage() {
         </button>
         <button
           style={{
-            width: 110,
-            height: 110,
-            fontSize: 44,
+            width: abButtonSize,
+            height: abButtonSize,
+            fontSize: abButtonSize * 0.4,
             borderRadius: "50%",
             background: "#3498db",
             color: "#fff",
