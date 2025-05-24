@@ -58,7 +58,7 @@ export default function ControllerPage() {
   // ユーザー選択・認証UI
   if (selecting) {
     return (
-      <div style={{ padding: 32, background: "#222", minHeight: "100vh", color: "#fff" }}>
+      <div style={{ padding: 32, background: "#222", minHeight: "100vh", color: "#fff", position: "relative" }}>
         <h2>ユーザーを選択してください</h2>
         {users.map((u) => (
           <div key={u.id} style={{ margin: "12px 0" }}>
@@ -70,29 +70,76 @@ export default function ControllerPage() {
             </button>
           </div>
         ))}
+        {/* ポップアップ式合言葉入力 */}
         {selectedUser && (
-          <div style={{ marginTop: 24 }}>
-            <div>合言葉を入力してください（{selectedUser.name}）</div>
-            <input
-              type="text"
-              value={inputPassword}
-              onChange={(e) => setInputPassword(e.target.value)}
-              style={{ fontSize: 18, marginRight: 12, padding: 4, borderRadius: 6 }}
-            />
-            <button
-              style={{ fontSize: 18, padding: "4px 18px", borderRadius: 8 }}
-              onClick={() => {
-                if (inputPassword === selectedUser.password) {
-                  setUserId(selectedUser.id);
-                  setSelecting(false);
-                } else {
-                  setError("合言葉が一致しません");
-                }
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              background: "rgba(0,0,0,0.5)",
+              zIndex: 1000,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onClick={() => { setSelectedUser(null); setInputPassword(""); setError(""); }}
+          >
+            <div
+              style={{
+                background: "#333",
+                padding: "32px 24px",
+                borderRadius: 16,
+                minWidth: 280,
+                boxShadow: "0 4px 24px #000a",
+                color: "#fff",
+                position: "relative",
               }}
+              onClick={e => e.stopPropagation()}
             >
-              OK
-            </button>
-            {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+              <div style={{ marginBottom: 16, fontSize: 18 }}>
+                合言葉を入力してください（{selectedUser.name}）
+              </div>
+              <input
+                type="text"
+                value={inputPassword}
+                onChange={(e) => setInputPassword(e.target.value)}
+                style={{ fontSize: 18, marginRight: 12, padding: 4, borderRadius: 6, width: "70%" }}
+                autoFocus
+              />
+              <button
+                style={{ fontSize: 18, padding: "4px 18px", borderRadius: 8 }}
+                onClick={() => {
+                  if (inputPassword === selectedUser.password) {
+                    setUserId(selectedUser.id);
+                    setSelecting(false);
+                  } else {
+                    setError("合言葉が一致しません");
+                  }
+                }}
+              >
+                OK
+              </button>
+              <button
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 12,
+                  background: "transparent",
+                  color: "#fff",
+                  border: "none",
+                  fontSize: 22,
+                  cursor: "pointer",
+                }}
+                onClick={() => { setSelectedUser(null); setInputPassword(""); setError(""); }}
+                aria-label="閉じる"
+              >
+                ×
+              </button>
+              {error && <div style={{ color: "red", marginTop: 12 }}>{error}</div>}
+            </div>
           </div>
         )}
       </div>
@@ -148,7 +195,7 @@ export default function ControllerPage() {
             border: "none",
             touchAction: "manipulation",
           }}
-          onClick={() => sendInput("up")}
+          onClick={() => sendInput("left")}
         >
           ↑
         </button>
@@ -172,7 +219,7 @@ export default function ControllerPage() {
               border: "none",
               touchAction: "manipulation",
             }}
-            onClick={() => sendInput("left")}
+            onClick={() => sendInput("down")}
           >
             ←
           </button>
@@ -188,7 +235,7 @@ export default function ControllerPage() {
               border: "none",
               touchAction: "manipulation",
             }}
-            onClick={() => sendInput("right")}
+            onClick={() => sendInput("up")}
           >
             →
           </button>
@@ -205,7 +252,7 @@ export default function ControllerPage() {
             border: "none",
             touchAction: "manipulation",
           }}
-          onClick={() => sendInput("down")}
+          onClick={() => sendInput("right")}
         >
           ↓
         </button>
